@@ -17,8 +17,8 @@ venv/
 *.joblib
 
 # Files
-*txt
 *png
+rockyou.txt
 
 # Bilder från matplotlib/EDA
 *.jpg
@@ -32,4 +32,4 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
-*.sworockyou.txt
+*.swo
