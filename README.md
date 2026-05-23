@@ -2,21 +2,24 @@
 
 XGBoost-based password pattern classifier trained on the RockYou dataset.
 Performs EDA, feature extraction, hyperparameter tuning, and SHAP analysis.
+Can be run as a command-line pipeline or as an interactive Streamlit web app.
 
 ---
 
 ## Project Structure
 
 ```
-rockyou/
-├── main.py          # Entry point — runs all steps in order
+group_project6/
+├── app.py           # Streamlit web app (interactive UI)
+├── main.py          # CLI entry point — runs all steps in order
 ├── config.py        # All settings (sample size, paths, grid params)
 ├── utils.py         # Progress bar and step header helpers
-├── data.py          # Steps 1–2: load passwords and EDA
-├── features.py      # Steps 3–4: feature extraction and pattern classification
-├── model.py         # Steps 5–10: tuning, training, evaluation, importance, SHAP
+├── data.py          # Steps 1-2: load passwords and EDA
+├── features.py      # Steps 3-4: feature extraction and pattern classification
+├── model.py         # Steps 5-10: tuning, training, evaluation, importance, SHAP
 ├── requirements.txt
-└── output/          # Created automatically — all PNGs saved here
+├── rockyou.txt      # dataset (download separately, see below)
+└── output/          # Created automatically — all PNGs saved here (CLI only)
 ```
 
 ---
@@ -67,37 +70,43 @@ You should see `(venv)` at the start of your terminal prompt.
 pip install -r requirements.txt
 ```
 
-This installs: `pandas`, `numpy`, `matplotlib`, `seaborn`, `xgboost`, `scikit-learn`, and `shap`.
+This installs all dependencies including `pandas`, `numpy`, `matplotlib`, `seaborn`,
+`xgboost`, `scikit-learn`, `shap`, and `streamlit`.
 
 ---
 
-## 5. Run the Program
+## 5. Run the Streamlit App
 
-Make sure your folder looks like this before running:
+Make sure `rockyou.txt` is in the project folder, then run:
 
-```
-rockyou/
-├── main.py
-├── config.py
-├── utils.py
-├── data.py
-├── features.py
-├── model.py
-├── requirements.txt
-└── rockyou.txt        ← must be here
+```bash
+streamlit run app.py
 ```
 
-Then run:
+A browser window will open automatically at `http://localhost:8501`.
+
+The app has four tabs:
+
+| Tab | Description |
+|-----|-------------|
+| Password Analysis | Enter any password to see its features, pattern class, and strength score. If a model has been trained, also shows ML classification with per-class probabilities. Includes a bulk analysis mode. |
+| EDA | Load the dataset and generate interactive charts: length distribution, character types, entropy, pattern frequency, and a correlation heatmap. |
+| Train Model | Run the full training pipeline in the browser: feature extraction, 3x3 grid search, final XGBoost model with 200 trees, confusion matrix, and classification report. |
+| SHAP & Feature Importance | XGBoost feature importance, permutation importance with error bars, normalized comparison of both methods, and SHAP summary and beeswarm plots per pattern. |
+
+Settings (sample size, SHAP samples, permutation repeats) are in the left sidebar.
+
+---
+
+## 6. Run the Command-Line Pipeline (alternative)
+
+If you prefer to run without a browser:
 
 ```bash
 python main.py
 ```
 
----
-
-## 6. What It Does
-
-The program runs 10 steps automatically:
+This runs all 10 steps in sequence and saves charts as PNG files to the `output/` folder.
 
 | Step | Description |
 |------|-------------|
@@ -105,34 +114,31 @@ The program runs 10 steps automatically:
 | 2 | Exploratory Data Analysis — length, entropy, character types |
 | 3 | Extract 22 features per password |
 | 4 | Classify each password into a pattern (e.g. `word_number`, `only_letters`) |
-| 5 | Grid search hyperparameter tuning (3×3 combos) |
+| 5 | Grid search hyperparameter tuning (3x3 combos) |
 | 6 | Train final XGBoost model with 200 trees |
 | 7 | Evaluate — classification report and confusion matrix |
 | 8 | XGBoost feature importance |
 | 9 | Permutation importance |
 | 10 | SHAP analysis |
 
----
-
-## 7. Output
-
-All PNG charts are saved to the `output/` folder:
+Output files saved to `output/`:
 
 | File | Description |
 |------|-------------|
-| `output/eda_plots.png` | Length distribution, char types, entropy, unique chars |
-| `output/eda_correlation.png` | Correlation matrix of password features |
-| `output/confusion_matrix.png` | Model prediction accuracy per pattern |
-| `output/feature_importance.png` | XGBoost feature importance + pattern frequency |
-| `output/permutation_importance.png` | Permutation importance with error bars |
-| `output/importance_comparison.png` | XGBoost vs permutation importance (normalised) |
-| `output/shap_overall.png` | SHAP summary across all patterns |
+| `eda_plots.png` | Length distribution, char types, entropy, unique chars |
+| `eda_correlation.png` | Correlation matrix of password features |
+| `confusion_matrix.png` | Model prediction accuracy per pattern |
+| `feature_importance.png` | XGBoost feature importance + pattern frequency |
+| `permutation_importance.png` | Permutation importance with error bars |
+| `importance_comparison.png` | XGBoost vs permutation importance (normalised) |
+| `shap_overall.png` | SHAP summary across all patterns |
 
 ---
 
-## 8. Configuration
+## 7. Configuration
 
-All settings are in `config.py`:
+Settings for the CLI pipeline are in `config.py`. The Streamlit app exposes the same
+settings via the sidebar at runtime.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -140,11 +146,11 @@ All settings are in `config.py`:
 | `ROCKYOU_PATH` | `"rockyou.txt"` | Path to the dataset file |
 | `SHAP_SAMPLE` | `1_000` | Number of samples for SHAP (higher = slower) |
 | `PERM_REPEATS` | `5` | Repeats per feature for permutation importance |
-| `OUTPUT_DIR` | `"output"` | Folder where all PNGs are saved |
+| `OUTPUT_DIR` | `"output"` | Folder where CLI PNGs are saved |
 
 ---
 
-## 9. Deactivate the Virtual Environment
+## 8. Deactivate the Virtual Environment
 
 When you're done:
 
