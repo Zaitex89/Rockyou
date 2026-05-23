@@ -19,6 +19,7 @@ venv/
 # Files
 *png
 rockyou.txt
+*output
 
 # Bilder från matplotlib/EDA
 *.jpg
